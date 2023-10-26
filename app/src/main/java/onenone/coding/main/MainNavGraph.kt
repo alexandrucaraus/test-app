@@ -15,15 +15,6 @@ object FirstRoute : Route {
     override val route: String = "FirstRoute"
 }
 
-fun NavController.navigate(screen: Route) {
-    this.navigate(screen.route)
-}
-
-fun NavController.replace(screen: Route) {
-    this.popBackStack()
-    this.navigate(screen.route)
-}
-
 @Composable
 fun MainNavGraph(
     navController: NavHostController,
@@ -37,4 +28,13 @@ fun MainNavGraph(
             FirstScreen()
         })
     }
+}
+
+fun NavController.navigate(screen: Route) {
+    this.navigate(screen.route)
+}
+
+fun NavController.replace(screen: Route) {
+    this.popBackStack()
+    this.navigate(screen.route)
 }
