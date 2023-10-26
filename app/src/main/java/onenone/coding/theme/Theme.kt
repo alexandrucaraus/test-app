@@ -5,9 +5,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import onenone.coding.main.localSystemUiControllerProvider
 
 private val DarkColorPalette = darkColors(
     primary = Purple200,
@@ -43,10 +40,6 @@ fun OnenoneTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composabl
         typography = Typography,
         shapes = Shapes
     ) {
-        CompositionLocalProvider(
-            localSystemUiControllerProvider provides rememberSystemUiController(),
-        ) {
-            content()
-        }
+        content()
     }
 }

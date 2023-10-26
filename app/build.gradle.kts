@@ -59,6 +59,9 @@ dependencies {
     val koinVersion = "3.5.0"
     val koinKspVersion = "1.3.0"
 
+    val ktorVersion = "2.3.5"
+    val roomVersion = "2.5.2"
+
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.activity:activity-compose:1.8.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -98,15 +101,28 @@ dependencies {
     implementation("io.insert-koin:koin-annotations:$koinKspVersion")
     ksp("io.insert-koin:koin-ksp-compiler:$koinKspVersion")
 
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+
+    //noinspection GradleDependency
+    implementation("androidx.room:room-runtime:$roomVersion")
+    //noinspection GradleDependency
+    implementation("androidx.room:room-ktx:$roomVersion")
+    //noinspection GradleDependency
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    //noinspection GradleDependency
+    ksp("androidx.room:room-compiler:$roomVersion")
+
+
     val jUnitVersion = "4.13.2"
     val androidJUnitVersion = "1.1.5"
     val espressoVersion = "3.5.1"
 
-    testImplementation("junit:junit:${jUnitVersion}")
+    testImplementation("junit:junit:$jUnitVersion")
     testImplementation("io.insert-koin:koin-test-junit5:$koinVersion")
 
-    androidTestImplementation("androidx.test.ext:junit:${androidJUnitVersion}")
-    androidTestImplementation("androidx.test.espresso:espresso-core:${espressoVersion}")
+    androidTestImplementation("androidx.test.ext:junit:$androidJUnitVersion")
+    androidTestImplementation("androidx.test.espresso:espresso-core:$espressoVersion")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
 
 }
