@@ -34,12 +34,10 @@ fun OnenoneTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composabl
     } else {
         LightColorPalette
     }
-
     MaterialTheme(
         colors = colors,
         typography = Typography,
-        shapes = Shapes
-    ) {
-        content()
-    }
+        shapes = Shapes,
+        content = content
+    )
 }
