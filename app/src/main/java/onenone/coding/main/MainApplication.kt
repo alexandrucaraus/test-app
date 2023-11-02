@@ -2,7 +2,7 @@ package onenone.coding.main
 
 import android.app.Application
 import onenone.coding.db.DatabaseModule
-import onenone.coding.screen.NetworkModule
+import onenone.coding.network.NetworkModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.annotation.ComponentScan

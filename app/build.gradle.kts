@@ -49,7 +49,7 @@ android {
 dependencies {
 
     val composeVersion = "1.5.4"
-    val composeNavVersion = "2.7.4"
+    val composeNavVersion = "2.7.5"
     val composeAccompanistVersion = "0.30.1"
     val composeConstraintLayoutVersion = "1.0.1"
 
@@ -120,6 +120,7 @@ dependencies {
 
     testImplementation("junit:junit:$jUnitVersion")
     testImplementation("io.insert-koin:koin-test-junit5:$koinVersion")
+    testImplementation("io.ktor:ktor-client-mock:$ktorVersion")
 
     androidTestImplementation("androidx.test.ext:junit:$androidJUnitVersion")
     androidTestImplementation("androidx.test.espresso:espresso-core:$espressoVersion")

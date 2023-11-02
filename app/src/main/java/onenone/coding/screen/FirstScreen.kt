@@ -73,8 +73,3 @@ class Repository(
     }
 }
 
-@Module
-class NetworkModule {
-    @Single
-    fun networkComponent () = HttpClient(CIO)
-}
