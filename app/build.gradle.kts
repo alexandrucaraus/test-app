@@ -7,7 +7,7 @@ plugins {
 android {
 
     compileSdk = 34
-    namespace = "onenone.coding"
+    namespace = "komoot.challenge"
 
     defaultConfig {
 
@@ -49,7 +49,7 @@ android {
 dependencies {
 
     val composeVersion = "1.5.4"
-    val composeNavVersion = "2.7.4"
+    val composeNavVersion = "2.7.5"
     val composeAccompanistVersion = "0.30.1"
     val composeConstraintLayoutVersion = "1.0.1"
 

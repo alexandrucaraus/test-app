@@ -1,4 +1,4 @@
-package onenone.coding.screen
+package komoot.challenge.ui
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,8 +14,8 @@ import org.koin.android.annotation.KoinViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun FirstScreen(
-    vm: FirstViewModel = koinViewModel()
+fun MainScreen(
+    vm: MainViewModel = koinViewModel()
 ) {
     val count = vm.count.collectAsState().value
     Text(
@@ -26,7 +26,7 @@ fun FirstScreen(
 }
 
 @KoinViewModel
-class FirstViewModel : ViewModel() {
+class MainViewModel : ViewModel() {
     val count = MutableStateFlow(0)
     init {
         count.value = count.value + 1

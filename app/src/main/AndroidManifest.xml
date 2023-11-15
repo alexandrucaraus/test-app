@@ -14,13 +14,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:name="onenone.coding.main.MainApplication"
+        android:name="komoot.challenge.App"
         android:theme="@style/Theme.MusicBacktrack">
 
         <activity
-            android:name="onenone.coding.main.MainActivity"
+            android:name="komoot.challenge.ui.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.MusicBacktrack">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

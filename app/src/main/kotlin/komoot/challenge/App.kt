@@ -1,4 +1,4 @@
-package onenone.coding.main
+package komoot.challenge
 
 import android.app.Application
 import org.koin.android.ext.koin.androidContext
@@ -9,7 +9,7 @@ import org.koin.core.logger.Level
 import org.koin.ksp.generated.defaultModule
 
 @ComponentScan
-class MainApplication : Application() {
+class App : Application() {
 
     override fun onCreate() {
         setupKoinDI()
@@ -19,7 +19,7 @@ class MainApplication : Application() {
     private fun setupKoinDI() {
         startKoin {
             androidLogger(Level.DEBUG)
-            androidContext(this@MainApplication)
+            androidContext(this@App)
             defaultModule()
         }
     }

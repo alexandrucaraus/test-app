@@ -1,4 +1,4 @@
-package onenone.coding.theme
+package komoot.challenge.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle

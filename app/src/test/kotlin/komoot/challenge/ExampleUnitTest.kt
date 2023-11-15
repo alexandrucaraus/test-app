@@ -1,4 +1,4 @@
-package onenone.coding
+package komoot.challenge
 
 import org.junit.Test
 

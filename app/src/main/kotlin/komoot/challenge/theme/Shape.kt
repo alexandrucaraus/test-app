@@ -1,4 +1,4 @@
-package onenone.coding.theme
+package komoot.challenge.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes

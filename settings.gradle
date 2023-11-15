@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Music"
+rootProject.name = "Komoot Challenge"
 include ':app'
