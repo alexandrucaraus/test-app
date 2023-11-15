@@ -19,19 +19,9 @@ import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import komoot.challenge.logic.TrackWalkWithImages
 import komoot.challenge.ui.components.TopBar
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.takeWhile
 import org.koin.android.annotation.KoinViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -94,7 +84,7 @@ class MainViewModel(
     val isStarted = trackWalkWithImages.isStarted.asState(false)
     val photos = trackWalkWithImages.images.asState(emptyList())
 
-    fun toggleStartStop() = trackWalkWithImages.toggle()
+    fun toggleStartStop() = trackWalkWithImages.toggleStartStop()
 
     private fun <T> Flow<T>.asState(initial:T) =
         stateIn(viewModelScope, SharingStarted.WhileSubscribed(), initial)

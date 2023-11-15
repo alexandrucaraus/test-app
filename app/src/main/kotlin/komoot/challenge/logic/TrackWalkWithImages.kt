@@ -6,18 +6,18 @@ import komoot.challenge.services.LocationService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEach
 import org.koin.core.annotation.Factory
 
 interface TrackWalkWithImages {
     val images: Flow<List<String>>
     val isStarted: Flow<Boolean>
-    fun toggle()
+    fun toggleStartStop()
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -30,34 +30,37 @@ class TrackWalkWithImagesImpl(
     private val walkImagesCache = HashSet<String>()
 
     private val _isStarted = MutableStateFlow(false)
-    override val isStarted : StateFlow<Boolean> = _isStarted
+    override val isStarted: Flow<Boolean> = _isStarted
 
-    private val _images = MutableStateFlow(emptyList<String>())
-    override val images: Flow<List<String>> = isStarted
-        .flatMapLatest(::streamLocation)
-        .mapLatest(::getImageUrl)
-        .filterNotNull()
-        .flatMapLatest(::updatedImages)
+    override val images: Flow<List<String>> = isStarted.flatMapLatest(::images)
 
-    override fun toggle() {
-        _isStarted.value = isStarted.value.not()
+    override fun toggleStartStop() {
+        _isStarted.value = _isStarted.value.not()
     }
 
-    private fun streamLocation(isStarted: Boolean): Flow<Location> =
-        if (isStarted) locationService.stream() else emptyFlow()
+    private fun images(isStarted: Boolean): Flow<List<String>> =
+        if (isStarted.not()) clearImages() else queryImages()
 
-    private suspend fun getImageUrl(location: Location): String? {
+    private fun clearImages(): Flow<List<String>> =
+        flowOf(Unit)
+            .onEach { walkImagesCache.clear() }
+            .mapLatest { walkImagesCache.toList() }
+
+    private fun queryImages(): Flow<List<String>> =
+        flowOf(Unit)
+            .flatMapLatest { locationService.stream() }
+            .mapLatest(::urlOfImageAtLocation)
+            .filterNotNull()
+            .flatMapLatest(::updatedImages)
+
+    private suspend fun urlOfImageAtLocation(location: Location): String? {
         return when (val result = apiService.get(FlickrService.Request(location))) {
             is FlickrService.Response.Success -> result.url
             else -> null
         }
     }
 
-    private fun updatedImages(url:String): Flow<List<String>> =
+    private fun updatedImages(url: String): Flow<List<String>> =
         if (walkImagesCache.add(url)) flowOf(walkImagesCache.toList()) else emptyFlow()
-
-    private fun clearImageCache(isStarted: Boolean) {
-        if (isStarted.not()) walkImagesCache.clear()
-    }
 
 }
