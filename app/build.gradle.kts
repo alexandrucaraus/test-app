@@ -89,6 +89,9 @@ dependencies {
     implementation("com.google.accompanist:accompanist-permissions:$composeAccompanistVersion")
     implementation("com.google.accompanist:accompanist-insets:$composeAccompanistVersion")
 
+    implementation("io.coil-kt:coil:2.4.0")
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
     implementation("androidx.media3:media3-session:$media3Version")
     implementation("androidx.media3:media3-exoplayer:$media3Version")
     implementation("androidx.media3:media3-ui:$media3Version")
