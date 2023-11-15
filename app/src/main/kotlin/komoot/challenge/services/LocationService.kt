@@ -15,15 +15,14 @@ interface LocationService {
 
 @Single(binds = [LocationService::class])
 class AndroidLocationService : LocationService {
-
     override fun stream(): Flow<Location> = flow {
         while (coroutineContext.isActive) {
-            delay(3000)
+            delay(1000)
+            println("Emit location")
             emit(Location("synthetic").apply {
                 latitude = Random.nextDouble(200.0)
                 longitude = Random.nextDouble(200.0)
             })
         }
     }
-
 }
