@@ -106,6 +106,8 @@ dependencies {
 
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 
     //noinspection GradleDependency
     implementation("androidx.room:room-runtime:$roomVersion")
@@ -115,7 +117,6 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:$roomVersion")
     //noinspection GradleDependency
     ksp("androidx.room:room-compiler:$roomVersion")
-
 
     val jUnitVersion = "4.13.2"
     val androidJUnitVersion = "1.1.5"
