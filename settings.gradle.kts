@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Komoot Challenge"
-include ':app'
+include(":app")
