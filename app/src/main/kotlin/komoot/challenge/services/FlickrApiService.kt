@@ -54,25 +54,26 @@ class FlickrApiServiceImpl(
     )
 
     override suspend fun get(request: FlickrService.Request): FlickrService.Response {
-        val (lat, lon) = with(request.location) { latitude to longitude}
-        val apiUrl = URLBuilder(flickrBaseUrl).apply {
-            protocol = URLProtocol.HTTPS
-            encodedPath = "/rest"
-            parameters {
-                append("method", method)
-                append("api_key", apiKey)
-                append("lat", lat.toString())
-                append("lon", lon.toString())
-                append("format", format)
-                append("nojsoncallback", noJsonCallback)
-                append("per_page", perPage.toString())
-            }
-        }.buildString()
-        val httpResponse =  httpClient.get(apiUrl)
-        val response: FlickrPhotosResponse = httpResponse.body()
-        println("response $response")
-        val photo = response.photos.firstOrNull()?.url ?: "none"
-        return FlickrService.Response.Success(url = photo)
+//        val (lat, lon) = with(request.location) { latitude to longitude}
+//        val apiUrl = URLBuilder(flickrBaseUrl).apply {
+//            protocol = URLProtocol.HTTPS
+//            encodedPath = "/rest"
+//            parameters {
+//                append("method", method)
+//                append("api_key", apiKey)
+//                append("lat", lat.toString())
+//                append("lon", lon.toString())
+//                append("format", format)
+//                append("nojsoncallback", noJsonCallback)
+//                append("per_page", perPage.toString())
+//            }
+//        }.buildString()
+//        val httpResponse =  httpClient.get(apiUrl)
+//        val response: FlickrPhotosResponse = httpResponse.body()
+//        println("response $response")
+//        val photo = response.photos.firstOrNull()?.url ?: "none"
+//        return FlickrService.Response.Success(url = photo)
+          return FlickrService.Response.Success("")
     }
 
 }
