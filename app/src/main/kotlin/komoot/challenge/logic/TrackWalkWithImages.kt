@@ -17,7 +17,8 @@ import org.koin.core.annotation.Factory
 interface TrackWalkWithImages {
     val images: Flow<List<String>>
     val isStarted: Flow<Boolean>
-    fun toggleStartStop()
+    fun start()
+    fun stop()
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -32,11 +33,16 @@ class TrackWalkWithImagesImpl(
     private val _isStarted = MutableStateFlow(false)
     override val isStarted: Flow<Boolean> = _isStarted
 
+    override fun start() {
+        _isStarted.value = true
+    }
+
+    override fun stop() {
+       _isStarted.value = false
+    }
+
     override val images: Flow<List<String>> = isStarted.flatMapLatest(::images)
 
-    override fun toggleStartStop() {
-        _isStarted.value = _isStarted.value.not()
-    }
 
     private fun images(isStarted: Boolean): Flow<List<String>> =
         if (isStarted.not()) clearImages() else queryImages()
