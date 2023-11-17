@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp") version "1.8.20-1.0.11" apply true
+    kotlin("plugin.serialization") version "1.8.20"
 }
 
 android {
@@ -48,6 +49,8 @@ android {
 
 dependencies {
 
+
+
     val composeVersion = "1.5.4"
     val composeNavVersion = "2.7.5"
     val composeAccompanistVersion = "0.30.1"
@@ -63,7 +66,7 @@ dependencies {
     val roomVersion = "2.5.2"
 
     implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.activity:activity-compose:1.8.0")
+    implementation("androidx.activity:activity-compose:1.8.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("com.google.android.material:material:1.10.0")
 
@@ -92,10 +95,6 @@ dependencies {
     implementation("io.coil-kt:coil:2.4.0")
     implementation("io.coil-kt:coil-compose:2.4.0")
 
-    implementation("androidx.media3:media3-session:$media3Version")
-    implementation("androidx.media3:media3-exoplayer:$media3Version")
-    implementation("androidx.media3:media3-ui:$media3Version")
-
     implementation("io.insert-koin:koin-core:$koinVersion")
     implementation("io.insert-koin:koin-android:$koinVersion")
     implementation("io.insert-koin:koin-android-compat:$koinVersion")
@@ -108,6 +107,10 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
     //noinspection GradleDependency
     implementation("androidx.room:room-runtime:$roomVersion")

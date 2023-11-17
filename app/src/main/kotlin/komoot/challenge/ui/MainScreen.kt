@@ -9,8 +9,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -24,7 +28,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import org.koin.android.annotation.KoinViewModel
 import org.koin.androidx.compose.koinViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
+import komoot.challenge.ui.components.MissingLocationPermissionsRationaleDialog
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MainScreenStateFull(
     modifier: Modifier = Modifier,
@@ -32,14 +42,45 @@ fun MainScreenStateFull(
 ) {
     val photos by vm.photos.collectAsState()
     val isStarted by vm.isStarted.collectAsState()
+
+    var showRationale by remember { mutableStateOf(false) }
+    val permissions = rememberPermissionState(android.Manifest.permission.ACCESS_FINE_LOCATION)
+    var isPermissionGranted by remember { mutableStateOf(false) }
+    var isStartRequested by remember { mutableStateOf(false) }
+
+    val toggleStartStop: () -> Unit = {
+        if (isStartRequested.not() && isPermissionGranted.not()) {
+            isStartRequested = true
+            permissions.launchPermissionRequest()
+        } else if (isStartRequested) {
+            isStartRequested = false
+            vm.toggleStartStop()
+        } else {
+            vm.toggleStartStop()
+        }
+    }
+
+    LaunchedEffect(key1 = permissions.status, key2 = isStartRequested) {
+        if (permissions.status.isGranted && isStartRequested) {
+            vm.toggleStartStop()
+        } else if
+        (permissions.status.isGranted.not() && permissions.status.shouldShowRationale) {
+            showRationale = true
+        }
+    }
+
+    MissingLocationPermissionsRationaleDialog(
+        isShow = showRationale,
+        onClose = { showRationale = false }
+    )
+
     MainScreen(
         modifier = modifier,
         photos = photos,
         isStarted = isStarted,
-        toggleStartStop = vm::toggleStartStop
+        toggleStartStop = toggleStartStop
     )
 }
-
 
 @Composable
 fun MainScreen(
@@ -51,7 +92,9 @@ fun MainScreen(
     Column(modifier) {
         TopBar(isStarted = isStarted, onStartStop = toggleStartStop)
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(8.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(photos) { pictureUrl ->
