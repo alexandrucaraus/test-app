@@ -1,5 +1,7 @@
 package komoot.challenge.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -31,10 +36,9 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import komoot.challenge.ui.components.MissingLocationPermissionsRationaleDialog
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.mapLatest
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -42,33 +46,64 @@ fun MainScreenStateFull(
     modifier: Modifier = Modifier,
     vm: MainViewModel = koinViewModel()
 ) {
+
     val permissions = rememberPermissionState(android.Manifest.permission.ACCESS_FINE_LOCATION)
     val isRunning by vm.isRunning.collectAsState()
     val photos by vm.photos.collectAsState()
-    val actionState by vm.state.collectAsState()
-    val permissionsState by vm.permissionsState.collectAsState()
 
-    LaunchedEffect(key1 = permissionsState, key2 = permissions.status) {
-        if (permissions.status.isGranted) {
-            vm.permissionsState(LocationPermissionsState.Granted)
-        } else if(permissions.status.isGranted.not() and permissions.status.shouldShowRationale) (
-            vm.permissionsState(LocationPermissionsState.UserDenied)
-        ) else if (permissionsState.isRequested()) {
+    var settings by remember { mutableStateOf(false) }
+    var perms by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = permissions.status, key2 = perms) {
+        if (permissions.status.isGranted and perms) {
+            vm.toggle()
+            perms = false
+        } else if (permissions.status.isGranted.not() and permissions.status.shouldShowRationale) {
             permissions.launchPermissionRequest()
+        } else if (permissions.status.isGranted.not() and permissions.status.shouldShowRationale.not()) {
+            settings = true
         }
     }
 
     MissingLocationPermissionsRationaleDialog(
-        isShow = permissionsState.isUserDenied(),
-        onClose = vm::dismissRationale
+        isShow = settings,
+        onClose = { settings = false }
     )
 
     MainScreen(
         modifier = modifier,
         photos = photos,
         isStarted = isRunning,
-        toggleStartStop = vm::toggleStartStop
+        toggleStartStop = vm::toggle
     )
+}
+
+@KoinViewModel
+class MainViewModel(
+    private val trackWalkWithImages: TrackWalkWithImages
+) : ViewModel() {
+
+    val isRunning = trackWalkWithImages.isStarted.asState(false)
+    val photos = trackWalkWithImages.images.asState(emptyList())
+
+    val permissionsState = MutableStateFlow<VmPermissions>(VmPermissions.Unknown)
+
+    fun toggle() {
+        val isRunning = isRunning.value
+        if (isRunning) trackWalkWithImages.stop() else trackWalkWithImages.start()
+    }
+
+    private fun <T> Flow<T>.asState(initial: T) =
+        stateIn(viewModelScope, SharingStarted.WhileSubscribed(), initial)
+
+}
+
+sealed class VmPermissions {
+    object Unknown: VmPermissions()
+    object Granted: VmPermissions()
+    object Requested: VmPermissions()
+    object Missing: VmPermissions()
+    object Denied: VmPermissions()
 }
 
 @Composable
@@ -106,76 +141,4 @@ fun Picture(
         contentScale = ContentScale.Crop,
         contentDescription = "Location picture"
     )
-}
-
-sealed class ActionState {
-    object Started: ActionState()
-    object Running: ActionState()
-    object Stopped: ActionState()
-}
-
-fun ActionState.isRunning() = this is ActionState.Running
-fun ActionState.isStopped() = this is ActionState.Stopped
-fun ActionState.isStarted() = this is ActionState.Started
-
-sealed class LocationPermissionsState {
-    object Unknown: LocationPermissionsState()
-    object Missing: LocationPermissionsState()
-    object Requested: LocationPermissionsState()
-    object Granted: LocationPermissionsState()
-    object UserDenied: LocationPermissionsState()
-}
-
-fun LocationPermissionsState.isGranted() = this is LocationPermissionsState.Granted
-fun LocationPermissionsState.isUnknown() = this is LocationPermissionsState.Unknown
-fun LocationPermissionsState.isMissing() = this is LocationPermissionsState.Missing
-fun LocationPermissionsState.isRequested() = this is LocationPermissionsState.Requested
-fun LocationPermissionsState.isUserDenied() = this is LocationPermissionsState.UserDenied
-
-@KoinViewModel
-class MainViewModel(
-    private val trackWalkWithImages: TrackWalkWithImages
-) : ViewModel() {
-
-    val isRunning = trackWalkWithImages.isStarted.mapLatest(::actionState).asState(false)
-    val photos = trackWalkWithImages.images.asState(emptyList())
-
-    val state = MutableStateFlow<ActionState>(ActionState.Stopped)
-    val _permissionsState = MutableStateFlow<LocationPermissionsState>(LocationPermissionsState.Unknown)
-    val permissionsState: StateFlow<LocationPermissionsState> = _permissionsState.mapLatest {
-        if (it.isGranted() and state.value.isStarted()) {
-            toggleStartStop()
-        }
-        it
-    }.asState(LocationPermissionsState.Unknown)
-
-    fun toggleStartStop() {
-       if (permissionsState.value.isGranted().not()) {
-           state.value = ActionState.Started
-           _permissionsState.value = LocationPermissionsState.Requested
-           return
-       }
-        if ((state.value.isStarted() or state.value.isStopped())) {
-            trackWalkWithImages.start()
-        } else if (state.value.isRunning()) {
-            trackWalkWithImages.stop()
-        }
-    }
-
-    private fun actionState(isRunning: Boolean): Boolean {
-        if (isRunning.not() and state.value.isRunning()) state.value = ActionState.Stopped
-        return isRunning
-    }
-
-    fun permissionsState(state: LocationPermissionsState) {
-        _permissionsState.value = state
-    }
-
-    fun dismissRationale() {
-        _permissionsState.value = LocationPermissionsState.Missing
-    }
-
-    private fun <T> Flow<T>.asState(initial:T) =
-        stateIn(viewModelScope, SharingStarted.WhileSubscribed(), initial)
-
 }

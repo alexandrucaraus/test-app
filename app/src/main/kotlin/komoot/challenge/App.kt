@@ -13,6 +13,7 @@ class App : Application() {
 
     override fun onCreate() {
         setupKoinDI()
+        println("------------------------------------------------------------------------------------------")
         super.onCreate()
     }
 
