@@ -1,9 +1,5 @@
 package komoot.challenge.ui
 
-import android.app.Activity
-import android.content.Context
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,19 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
-import komoot.challenge.logic.TrackWalkWithImages
-import komoot.challenge.ui.components.PermissionDeniedDialog
+import komoot.challenge.ui.components.LocationPermissions
 import komoot.challenge.ui.components.TopBar
-import komoot.challenge.ui.components.shouldShowPermissionsDeniedDialog
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
-import org.koin.android.annotation.KoinViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -44,50 +31,20 @@ fun MainScreenStateFull(
     val isRunning by vm.isRunning.collectAsState()
     val photos by vm.photos.collectAsState()
 
-    val localContext = LocalContext.current
-    var permissionDeniedDialog by remember { mutableStateOf(false) }
+    var askPermission by remember { mutableStateOf(false) }
 
-    val permissions = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { hasPermissions ->
-            if (hasPermissions) {
-                vm.toggle()
-            } else if (localContext.shouldShowPermissionsDeniedDialog()) {
-                permissionDeniedDialog = true
-            }
-        }
-    )
-
-    PermissionDeniedDialog(
-        isShow = permissionDeniedDialog,
-        onClose = { permissionDeniedDialog = false }
+    LocationPermissions(
+        request = askPermission,
+        requestClear = { askPermission = false },
+        onGranted = {  vm.toggle()  }
     )
 
     MainScreen(
         modifier = modifier,
         photos = photos,
         isStarted = isRunning,
-        toggleStartStop = {
-            permissions.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
-        },
+        toggleStartStop = { askPermission = true },
     )
-}
-
-@KoinViewModel
-class MainViewModel(
-    private val trackWalkWithImages: TrackWalkWithImages
-) : ViewModel() {
-
-    val isRunning = trackWalkWithImages.isStarted.asState(false)
-    val photos = trackWalkWithImages.images.asState(emptyList())
-
-    fun toggle() {
-        if (isRunning.value) trackWalkWithImages.stop() else trackWalkWithImages.start()
-    }
-
-    private fun <T> Flow<T>.asState(initial: T) =
-        stateIn(viewModelScope, SharingStarted.WhileSubscribed(), initial)
-
 }
 
 @Composable

@@ -11,14 +11,9 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.isActive
 import org.koin.core.annotation.Single
-import kotlin.coroutines.coroutineContext
-import kotlin.random.Random
 
 interface LocationService {
     fun stream(params: LocationRequestParams = LocationRequestParams()): Flow<Location>
@@ -75,17 +70,5 @@ class AndroidLocationService(
             fusedLocationProviderClient.removeLocationUpdates(locationCallback)
         }
     }
-}
 
-class StubLocationService : LocationService {
-    override fun stream(params: LocationService.LocationRequestParams): Flow<Location> = flow {
-        while (coroutineContext.isActive) {
-            delay(5000)
-            println("Emit location")
-            emit(Location("synthetic").apply {
-                latitude = Random.nextDouble(200.0)
-                longitude = Random.nextDouble(200.0)
-            })
-        }
-    }
 }
