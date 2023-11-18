@@ -1,5 +1,6 @@
 package komoot.challenge.ui.components
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -11,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
-fun MissingLocationPermissionsRationaleDialog(
+fun PermissionDeniedDialog(
     isShow: Boolean,
     onClose: () -> Unit = {},
     title: String = "Permissions Error",
@@ -23,7 +24,8 @@ fun MissingLocationPermissionsRationaleDialog(
             onDismissRequest = onClose,
             confirmButton = {
                 Button(onClick = {
-                    context.setPermissionManually()
+                    context.openAppSettings()
+                    onClose()
                 }) {
                     Text("Settings")
                 }
@@ -39,11 +41,14 @@ fun MissingLocationPermissionsRationaleDialog(
     }
 }
 
-private fun Context.setPermissionManually() {
-    this.startActivity(
-        Intent().apply {
-            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-            data = Uri.parse("package:$packageName")
-        }
-    )
+private fun Context.openAppSettings() =
+    Intent().apply {
+        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+        data = Uri.fromParts("package", packageName, null)
+    }.let(::startActivity)
+
+fun Context.shouldShowPermissionsDeniedDialog(
+    permission: String = android.Manifest.permission.ACCESS_FINE_LOCATION,
+): Boolean {
+    return !((this as? Activity)?.shouldShowRequestPermissionRationale(permission) ?: false)
 }
